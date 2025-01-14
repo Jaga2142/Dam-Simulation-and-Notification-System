@@ -23,6 +23,6 @@ class Depth : public Dimension
         Depth& operator = (const Depth&);
         void updatedepth (int,int);         //to deposition of sediments in floor due to incoming water
         void updatedepth (int,float);       //to illustrate erosion process of dam's bed due to outflowing water
-        void reduce (Depth&) const;         //to compress the depth matrix if size exceeds 20 and display it
+        Depth& reduce() const;         //to compress the depth matrix if size exceeds 20 and display it
 
 };
