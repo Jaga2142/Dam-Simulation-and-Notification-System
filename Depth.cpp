@@ -43,48 +43,40 @@ Depth& Depth :: operator = (const Depth &s)
 return *this;
 }
 
-void Depth :: reduce(Depth &nw)const        //will give reduced form of the matrix without affecting the original matrix
-{
-    float rcompress = 1;
-    float ccompress = 1;
-    if(length > 20)
-    {
-        nw.length = 20;
-        rcompress = length/20;              //row comression factor
-    }
-    if(breadth > 20)
-    {
-        nw.breadth = 20;
-        ccompress = breadth/20;             //column compression factor
-    }
-    nw.depth = new float* [20];
-    for(int i=0; i<20; i++)
-        nw.depth[i]=new float [20];
-    int ni=0;
-    for(float i=0; i<length && ni < 20; i+=rcompress)
-    {
-        int nj=0;
-        for(float j=0; j < breadth && nj < 20; j+=ccompress)
-        {
-            nw.depth[ni][nj++] = depth[int(i)][int(j)];
-        }
-        ni++;
-    }
-return ;
+Depth& Depth::reduce() const {
+    static Depth nw;
+    float rcompress = (length > 20) ? length / 20 : 1;
+    float ccompress = (breadth > 20) ? breadth / 20 : 1;
 
+    nw.length = (length > 20) ? 20 : length;
+    nw.breadth = (breadth > 20) ? 20 : breadth;
+
+    // Allocate memory for the reduced depth
+    nw.depth = new float*[nw.length];
+    for (int i = 0; i < nw.length; ++i) {
+        nw.depth[i] = new float[nw.breadth];
+    }
+
+    // Fill the reduced matrix
+    for (int ni = 0; ni < nw.length; ++ni) {
+        for (int nj = 0; nj < nw.breadth; ++nj) {
+            float temp = 0.0;
+            for (int l = 0; l < int(rcompress); ++l) {
+                for (int m = 0; m < int(ccompress); ++m) {
+                    temp += depth[int(ni * rcompress + l)][int(nj * ccompress + m)];
+                }
+            }
+            nw.depth[ni][nj] = temp / (rcompress * ccompress);
+        }
+    }
+    return nw;
 }
+
 
 ostream& operator << (ostream &out, const Depth &dp)
 {
     Depth op;
-    if(dp.length>20 || dp.breadth > 20)
-    {
-        dp.reduce(op);
-    }
-    else
-    {
-        op = dp;
-    }
+    op=dp.reduce();
     for(int i=0; i<op.length; i++)
     {
         out << "-----";
@@ -114,7 +106,7 @@ istream& operator >> (istream &inp, Depth &dp)
     cin >> dp.maxdepth;
     dp.maxdepth = (dp.maxdepth >=0)?dp.maxdepth:0;
     for(int i=0; i<dp.length; i++)
-    {
+    {  
         for(int j=0; j < dp.breadth; j++)
         {
             dp.depth[i][j]=dp.maxdepth;
@@ -133,12 +125,19 @@ void Depth :: calculatemaxdepth()
 
 Depth& Depth :: operator + (const int n)            // adds a integer to all elements in matrix
 {
+    try{
     for(int i=0; i<length; i++)
         for(int j=0; j<breadth; j++)
     {
         depth[i][j] += n;
+        if(depth[i][j]<0)
+         throw runtime_error("Negatives in depth parameters occured");
     }
     calculatemaxdepth();
+    }catch(const exception& e) {
+        cout << "Error during autopilot operation: " << e.what() << endl;
+
+    }
 return *this;
 }
 
@@ -150,6 +149,7 @@ Depth& Depth :: operator - (const int n)            // subracts a integer to all
 
 void Depth :: updatedepth (int l1, int l2)
 {
+    printf("updatedepth1called\n");
     if(l1 == length-1)                          //inlet is at the backside wall of the water storage
     {
         for(int i=length-3; i<=length-1; i++)
@@ -174,6 +174,7 @@ void Depth :: updatedepth (int l1, int l2)
 
 void Depth :: updatedepth (int outlet, float s)             // all outlets are assumed to be at front of the dam
 {
+    printf("UPdatedepth2called\n");
    int size = int(s);
     int partl = breadth/(size+1);       
     outlet = (outlet+1)*partl;
@@ -186,3 +187,5 @@ void Depth :: updatedepth (int outlet, float s)             // all outlets are a
     }
     calculatemaxdepth();
 }
+
+
