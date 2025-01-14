@@ -49,14 +49,14 @@ ostream& operator << (ostream &out,const Dam &D)
     out << "pH of water  : " << D.damwater.pH << endl;
     out << "Water Level  : " << D.current_water_level << " m/";
     printf("%.2f m",D.depth.maxdepth);
-    cout << endl;
+    out << endl;
     out << "Inlets water supply:" << endl;
     for(int i=0; i<D.I.size(); i++)
-        out << D.I[i].inflowrate << " ";
-    out << "m^3/s \nOutlets water discharge:" << endl;
+        D.I[i].display();
+    out << "\nOutlets water discharge:" << endl;
     for(int i=0; i<D.O.size(); i++)
-        out << D.O[i].outletvolume << " ";
-    out << "m^3/s \nDepth matrix(in metres):\n" << D.depth << endl;
+        D.O[i].display();
+    out << "\nDepth matrix(in metres):\n" << D.depth << endl;
 return out;
 }
 
@@ -139,25 +139,24 @@ void Dam :: simulate(int nsec)
     {
         for(int i=0; i < I.size(); i++ )
         {
-            if(I[i].inflowrate > 0)
-            {
+            if(I[i].inflowrate > 0 && addinletwater(I[i]))
                 depth.updatedepth(I[i].inlocation[0],I[i].inlocation[1]);
-                addinletwater(I[i]);
-            }
+            else
+                break;
         }
 
         for(int i=0; i < O.size(); i++ )
         {
-            if(O[i].outletvolume > 0)
-            {
+            if(O[i].outletvolume > 0 && reduceoutletwater(O[i]))
                 depth.updatedepth(i,float(O.size()));                
-                reduceoutletwater(O[i]);
-            }
+            else
+                break;
         }
         current_water_level = float(damwater.volume)/depth.area;
     }
     cout << "\nsimulated for " << nsec << " seconds";
 }
+
 
 void Dam :: autopilot()
 {
