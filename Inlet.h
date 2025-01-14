@@ -1,3 +1,7 @@
+
+#ifndef INLET_H
+#define INLET_H
+#include"component.h"
 class Inlet
 {
     public:
@@ -12,8 +16,20 @@ class Inlet
             inlocation[0]=l1;
             inlocation[1]=l2;
         }
+
+        virtual ~Inlet()
+        {
+            ;
+        }
+        
+        virtual void display()const
+        {
+            cout << "Inlet" << index << ": " << inflowrate << " m^3/s" << endl;
+        }
+
+         
         // no destructor drequired as all members are statically allocated
-        void input(int val,int pval)            //user need to enter parameters of inlet which are taken from physical instruments
+        virtual void operate(int val,float pval)            //user need to enter parameters of inlet which are taken from physical instruments
         {
             if(val >=0 )
                 inflowrate = val;
@@ -25,3 +41,5 @@ class Inlet
                 incoming_pH = 7;
         }
 };
+
+#endif
