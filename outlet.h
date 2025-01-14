@@ -1,4 +1,8 @@
-class Outlet
+
+#ifndef OUTLET_H
+#define OUTLINE_H
+#include"component.h"
+class Outlet : protected Component
 {
     private:
         int index;
@@ -13,18 +17,20 @@ class Outlet
             status = s;
             outletvolume = (max_outflowrate*status)/100;
         }
-        // no destructor drequired as all members are statically allocated
-        void operate()                  // open or closes the outlet gate
+        virtual ~Outlet()
         {
-            int val=0;
-            cout << "0-close ,(1-100)-open percentage: ";
-            cin >> val;
-            if(val < 0 && val > 100)
-                val =0;
-            status = val;
-            outletvolume = (max_outflowrate*status)/100;
+            ;
         }
-        void operate(int val)           
+        virtual void display()const
+        {
+            cout << "Outlet " << index << ": ";
+            if(status!=0)
+                cout << max_outflowrate*status/100 << " m^3/s"<< endl;
+            else
+                cout << "Closed " << endl;
+        }
+
+        virtual void operate(int val=0,float p=0)           
         {
             if(val < 0 && val > 100)
                 val = 0;
@@ -33,3 +39,4 @@ class Outlet
         }
 };
 
+#endif
