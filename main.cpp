@@ -8,14 +8,21 @@ void advancedsettings(Dam &D)         //change dam depth,addinlets or outlets,et
     bool loop = true;
     while(loop)
     {
+    try{
         cout << "1-Increase or Decrease depth of dam\n2-Add outlet\n3-Add inlet\n4-Exit advanced settings\n";
         cin >> ch;
+        if (cin.fail()) 
+        {
+            throw invalid_argument("Invalid input! Please enter a valid integer.");
+        }
         switch(ch)
         {
             case 1:
             {
                 cout << "Depth increased(+ve) or decreased(-ve) by? ";
                 cin >> n;
+                if (cin.fail()) 
+                    throw invalid_argument("Invalid input! Please enter a valid integer.");
                 D.adddepth(n);
                 break;
             }
@@ -39,7 +46,13 @@ void advancedsettings(Dam &D)         //change dam depth,addinlets or outlets,et
                 cout << "Invalid input Enter again";
             }
         }
-        
+    }
+    catch (const invalid_argument& e) 
+    {
+        cout << e.what() << endl;
+        cin.clear();  // Clears the error flag
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Discards invalid input
+    } 
     }
     
 }
@@ -73,25 +86,42 @@ int main()
             }
             case 2:
             {
+                try {
                 cout << "choose inlets(0-" << D.I.size()-1 << "): ";
                 cin >> n;
-                if(n >= 0 && n <=D.I.size()-1)
+                if (n < 0 || n >= D.I.size()) 
                 {
-                    int i;
-                    float p;
-                    cout << "Enter inlet rate and pH: ";
-                    cin >> i >> p;
-                    D.I[n].input(i,p);
+                    throw out_of_range("Invalid inlet index!");
+                }
+                int i;
+                float p;
+                cout << "Enter inlet rate and pH: ";
+                cin >> i >> p;
+                D.I[n].operate(i,p);
+                } 
+                catch (const out_of_range& e) 
+                {
+                    cout << e.what() << endl;
                 }
                 break;
             }
             case 3:
             {
+                try {
                 cout << "choose outlets(0-" << D.O.size()-1 << "): ";
                 cin >> n;
-                if(n >= 0 && n <=D.O.size()-1)
+                if (n < 0 || n >= D.O.size()) 
                 {
-                    D.O[n].operate();
+                throw out_of_range("Invalid outlet index!");
+                }
+                    cout << "Open(0-100)? : ";
+                    int val;
+                    cin >> val;
+                    D.O[n].operate(val);
+                }
+                catch (const out_of_range& e) 
+                {
+                    cout << e.what() << endl;
                 }
                 break;
             }
